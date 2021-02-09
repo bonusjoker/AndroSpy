@@ -17,7 +17,7 @@ Important: Select MSBuild.exe from your Visual Studio installed path, not from .
 
 <img src="https://user-images.githubusercontent.com/45147475/107262779-05142180-6a52-11eb-932e-492b5deef531.PNG" width="45%"></img>  
 
-After making the settings in the above pictures, you can now create a clients.  
+After making the settings in the above pictures, you can now create clients.  
 
 +How can I build a Client?  
 - https://www.youtube.com/watch?v=3LEegvEp8_E  (thanks to AndroTricks for this video)  
