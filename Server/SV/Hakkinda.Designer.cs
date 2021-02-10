@@ -50,11 +50,10 @@
             this.metroLabel1.AutoSize = true;
             this.metroLabel1.Location = new System.Drawing.Point(9, 73);
             this.metroLabel1.Name = "metroLabel1";
-            this.metroLabel1.Size = new System.Drawing.Size(220, 133);
+            this.metroLabel1.Size = new System.Drawing.Size(220, 114);
             this.metroLabel1.TabIndex = 5;
-            this.metroLabel1.Text = "All rights are reserved.\r\nVersion: 3\r\n07.02.2021 Dracula Edition\r\nCode-Design by " +
-    "turkish lion qH0sT\r\nLanguage-Server: C#\r\nLanguage-Client: C# (a.k.a Xamarin)\r\nMa" +
-    "de in Turkey";
+            this.metroLabel1.Text = "All rights are reserved.\r\nVersion: 3\r\n07.02.2021 Dracula Edition\r\nLanguage-Server" +
+    ": C#\r\nLanguage-Client: C# (a.k.a Xamarin)\r\nMade in Turkey";
             this.metroLabel1.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
             // metroLabel2
